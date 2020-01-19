@@ -22,6 +22,7 @@ class Boundary {
     float box2dH = box2d.scalarPixelsToWorld(h/2);
     // We're just a box
     sd.setAsBox(box2dW, box2dH);
+    //body.setUserData(this);
 
 
     // Create the body
@@ -32,6 +33,8 @@ class Boundary {
     
     // Attached the shape to the body using a Fixture
     b.createFixture(sd,1);
+    
+    b.setUserData(this);
   }
 
   // Draw the boundary, if it were at an angle we'd have to do something fancier

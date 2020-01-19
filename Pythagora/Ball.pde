@@ -1,20 +1,19 @@
 class Ball {
 
     Body body;
-    float x, y, d;
+    int d;
 
-    Ball(float x_, float y_, int v1, int v2) {
+    Ball(int x, int y, int v1, int v2) {
 
-        x = x_;
-        y = y_;
         d = 20;
 
         BodyDef bd = new BodyDef();
         bd.type = BodyType.DYNAMIC;
-        //bd.bullet = true;
-        bd.position.set(box2d.coordPixelsToWorld(v1, v2));
-        bd.setLinearVelocity(new Vec2(1, -100));
+        bd.bullet = true;
+        bd.position.set(box2d.coordPixelsToWorld(x, y));
+        bd.setLinearVelocity(new Vec2(v1, v2));
         body = box2d.createBody(bd);
+        body.setUserData(this);
 
         CircleShape cs = new CircleShape();
         cs.m_radius = box2d.scalarPixelsToWorld(d);
@@ -22,7 +21,7 @@ class Ball {
         FixtureDef fd = new FixtureDef();
         fd.shape = cs;
         fd.density = 100.0;
-        fd.friction = 0.3;
+        fd.friction = 0.5;
         fd.restitution = 0.4;
 
         body.createFixture(fd);

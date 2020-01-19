@@ -16,6 +16,7 @@ class Box {
         bd.position.set(box2d.coordPixelsToWorld(x, y));
         //bd.setLinearVelocity(new Vec2(2, -10));
         body = box2d.createBody(bd);
+        body.setUserData(this);
 
         PolygonShape pd = new PolygonShape();
         // Figure out the box2d coordinates

@@ -15,6 +15,7 @@ class Obstacle {
         //bd.bullet = true;
         bd.position.set(box2d.coordPixelsToWorld(x, y));
         body = box2d.createBody(bd);
+        body.setUserData(this);
 
         PolygonShape ps = new PolygonShape();
         float box2dW = box2d.scalarPixelsToWorld(w/2);
