@@ -1,3 +1,10 @@
+//サーボの位置を初期化
+void initServo(){
+  oval1 = oval2 = 20;
+  sendServo(1, oval1); //ゲートを閉じる
+  sendServo(2, oval2); //ゲートを閉じる 
+}
+
 // シリアルポートにデータが受信されると呼び出されるメソッド
 void serialEvent(Serial port) {
   inByte = port.readBytes();
@@ -23,5 +30,3 @@ void sendServo(int id, int value)
   serialPort.write((byte)id);
   serialPort.write((byte)v);
 }
-
-

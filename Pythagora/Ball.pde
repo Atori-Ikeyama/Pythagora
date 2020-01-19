@@ -2,6 +2,7 @@ class Ball {
 
     Body body;
     int d;
+    float posi;
 
     Ball(int x, int y, int v1, int v2) {
 
@@ -31,6 +32,7 @@ class Ball {
     void display() {
         Vec2 pos = box2d.getBodyPixelCoord(body);
         float a = body.getAngle();
+        posi = pos.x;
 
         pushMatrix();
         translate(pos.x, pos.y);

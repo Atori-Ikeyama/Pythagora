@@ -2,6 +2,7 @@ class Box {
 
     Body body;
     float x, y, w, h;
+    float posi;
 
     Box(float x_, float y_) {
 
@@ -37,6 +38,7 @@ class Box {
     void display() {
         Vec2 pos = box2d.getBodyPixelCoord(body);
         float a = body.getAngle();
+        posi = pos.x;
 
         pushMatrix();
         translate(pos.x, pos.y);
