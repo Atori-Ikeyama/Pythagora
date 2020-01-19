@@ -6,6 +6,13 @@ import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.*;
 import org.jbox2d.dynamics.*;
 import org.jbox2d.dynamics.contacts.*;
+import processing.serial.*;
+
+Serial serialPort; // Arduinoにデータを送るシリアルポート
+boolean firstContact = false;  //Arduinoからのはじめの送信を確認する
+
+byte[] inByte = new byte[3]; // 受信データ用バッファ
+int oval1, oval2;
 
 Box2DProcessing box2d;
 ArrayList<Ball> balls;
@@ -13,10 +20,11 @@ Ball b;
 Box box;
 ArrayList<Obstacle> obstacles;
 ArrayList<Boundary> boundaries; 
-int time = 3;
+int time = 0;
 int flag = 0;
 int stage = 0;
 int counter = 0;
+
 
 void setup() {
 
@@ -45,7 +53,17 @@ void setup() {
     boundaries.add(new Boundary(1250, 200, 100, 10));
 
     box = new Box(1100, 300);
+
+    //arduino
+
+    printArray(Serial.list()); // 使用可能なシリアルポート一覧の出力。デバッグ用
+    String portName = Serial.list()[0]; // 使用するシリアルポート名
+    serialPort = new Serial(this, portName, 9600);
+    serialPort.buffer(inByte.length); // 読み込むバッファの長さをの指定
+
+    oval1 = oval2 = 70;
 }
+
 
 void draw() {
 
@@ -54,48 +72,77 @@ void draw() {
 
     switch (stage) {
         case 0:
-            background(0);
-            break;
+        background(0);
+        break;
         case 1:
-            if (time == 0) {
-                b = new Ball(100, 50, 5, -100);
-                flag = time;
-                time = 3;
-            }else if (time == 1) {
-                b.killBody();
-                b = new Ball(-100, 500, 30, -10);
-                flag = time;
-                time = 3;
-            }else if (time == 2) {
-                b.killBody();
-                b = new Ball(1250, 50, 20, -100);
-                flag = time;
-                time = 3;
-            }
-            //println(flag);
-
-            box.display();
-            
-            if(b != null) {
-                b.display();
-            }
-
-            for (Obstacle ob: obstacles) {
-                ob.display();
-            }
-
-            for (Boundary boun: boundaries) {
-                boun.display();
-            }
-            break;
+        Scheduler();
+        EveryThingDisplay();
+        break;
 
     }
 
     write_end();
 }
 
+
+void Scheduler(){
+    switch(time){
+        case 0://はじめの値
+        counter++;
+        if (stage==1 && counter > 2000){
+            time = 1;
+            counter = 0;
+        }
+        break;
+        case 1://はじめにボールが入ってくる
+        if (b == null){
+            b = new Ball(100, 50, 5, -100);
+        }
+        break;
+        case 2://obstacleが落ちて紐が引っ張られる
+        sendServo();
+        counter++;
+        if (counter > 200){
+            time = 3;
+            counter = 0;
+        }
+        break;
+        case 3://はじめのボールが外に出る
+        sendServo();
+        counter++;
+        if(counter > 300){
+            b.killBody();
+            time = 4;
+            counter = 0;
+        }
+        break;
+        case 4://出たボールが中に入る
+        if(b == null) {
+            b = new Ball(-100, 500, 30, -10);
+        }
+        counter++;
+        if(counter > 500){
+            time = 5;
+            counter = 0;
+        }
+        break;
+        case 5://そのボールが外に出る
+        sendServo();
+        counter++;
+        if(counter > 60){
+            killBody();
+        }
+        break;
+    }
+}
+
+
 void keyPressed() {
-   stage = 1;
+    if (stage == 0){
+        stage = 1;
+        counter = 0;
+    }
+
    if (key == 'a') {
        time = 0;
    }else if (key == 'b') {
@@ -103,25 +150,27 @@ void keyPressed() {
    }else if (key == 'c') {
        time = 2;
    }else if (key == 'e') {
-        counter++;
+        flag++;
     }else if (key == 'n') {
-        counter++;
+        flag++;
     }
    
 }
+
 
 void write_end() {
     textSize(600);
     fill(255, 10, 10);
 
-    if (counter > 1 ) {
+    if (flag > 1 ) {
         text('E', 200, 700);
     }
     
-    if (counter > 0) {
+    if (flag > 0) {
         text('N', 900, 700);
     }
 }
+
 
 void beginContact(Contact cp) {
 
@@ -140,9 +189,27 @@ void beginContact(Contact cp) {
     if (o1.getClass() == Obstacle.class && o2.getClass() == Ball.class) {
         Obstacle p1 = (Obstacle) o1;
         Ball p2 = (Ball) o2;
-        
+        time = 2;   
     }
 }
 
+
 void endContact(Contact cp) {
+}
+
+
+void EveryThingDisplay(){
+    box.display();
+            
+    if(b != null) {
+        b.display();
+    }
+
+    for (Obstacle ob: obstacles) {
+        ob.display();
+    }
+
+    for (Boundary boun: boundaries) {
+        boun.display();
+    }
 }
