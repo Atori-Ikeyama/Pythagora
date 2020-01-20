@@ -17,7 +17,6 @@ int oval1, oval2;
 Box2DProcessing box2d;
 ArrayList<Ball> balls;
 Ball b;
-Box box;
 Line lin;
 ArrayList<Obstacle> obstacles;
 ArrayList<Boundary> boundaries; 
@@ -56,11 +55,11 @@ void setup() {
     boundaries.add(new Boundary(1250, 200, 100, 10));
 
     box = new Box(1100, 300);
-    lin = new Line(30, 1100, 0, 1100, 300, box);
+    lin = new Line(500, 100, 700, 0, 1100, 300)
 
     //arduino
 
-    printArray(Serial.list());// 使用可能なシリアルポート一覧の出力。デバッグ用
+    printArray(Serial.list()); // 使用可能なシリアルポート一覧の出力。デバッグ用
     String portName = Serial.list()[2]; // 使用するシリアルポート名
     serialPort = new Serial(this, portName, 9600);
     serialPort.buffer(inByte.length); // 読み込むバッファの長さをの指定
@@ -89,7 +88,6 @@ void draw() {
     write_end();
     println("time: ", time);
     println("frequency: ", frequency);
-    println("counter: ", counter);
     frequency = 0;
 }
 
@@ -105,16 +103,12 @@ void Scheduler(){
         break;
         case 1://はじめにボールが入ってくる
         if (b == null){
-            b = new Ball(100, 50, 10, -100);  
+            b = new Ball(100, 50, 10, -100);
+            lin.fall();
         }
         break;
         case 2://obstacleが落ちて紐が引っ張られる
-        if(counter == 0){
-            sendServo(1, 100);
-            lin.fall();
-            //println("unko");
-        }
-    
+        sendServo(1, 100);
         counter++;
         if (counter > 300){
             time = 3;
@@ -201,7 +195,6 @@ void endContact(Contact cp) {
         && o2.getClass() == Ball.class 
         && time == 1) {
             time = 2;
-            counter = 0;
     }
 }
 
@@ -222,6 +215,6 @@ void EveryThingDisplay(){
     }
 
     if (lin != null){
-        lin.display();
+        line.display();
     }
 }

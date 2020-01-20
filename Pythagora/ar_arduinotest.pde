@@ -13,7 +13,7 @@ void serialEvent(Serial port) {
     if(inByte[0] == 'C') { // Arduinoとの接続確認
       port.clear();
       firstContact = true;
-      sendServo(1, 70);
+      sendServo(1, 70);       
       sendServo(2, 70);
     } 
   }
